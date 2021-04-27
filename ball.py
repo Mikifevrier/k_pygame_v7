@@ -1,10 +1,23 @@
 import pygame as pg
 import sys
+from random import randint
 
 #Es más cómodo crear una función que permita cerrar el juego
 def fin_juego():
     pg.quit()
     sys.exit()
+
+def rebotaX(x):
+    if x<=0 or x>=ANCHO:
+        return -1
+    
+    return 1
+
+def rebotaY(y):                 #esto me permite cambiar a positivo o negativo
+    if y<=0 or y>=ALTO:
+        return -1
+    
+    return 1
 
 ROJO = (255, 0, 0)  #Es bueno declarar los colores para luego usarlos con el nombre, en vez de hacerlo con tuplas
 AZUL = (0, 0, 255)
@@ -15,36 +28,49 @@ ALTO = 600
 
 pg.init()
 pantalla = pg.display.set_mode((ANCHO, ALTO))
-
-game_over = False                                   #esto se va a repetir siempre
-x = ANCHO // 2                                      #vamos a dejar la bola en el centro
-y = ALTO // 2
-vx = -5
-vy = -5
 reloj = pg.time.Clock()                             #creo la variable reloj para establecer la tasa de fps
 
+class Bola():
+    def __init__(self, x, y, vx, vy, color):
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
+        self.color = color
+
+bolas = []
+for _ in range(10):
+    bola = Bola(randint(0, ANCHO),
+                randint(0, ALTO),
+                randint(5, 10),
+                randint(5, 10),
+                (randint(0, 255), randint(0, 255), randint(0, 255)))
+    
+    bolas.append(bola)
+
+game_over = False                                       #esto se va a repetir siempre
 while not game_over:
-    reloj.tick(60)                                  #ralentiza los frames para que la bola no salga tan rápida
+    reloj.tick(60)                                      #ralentiza los frames para que la bola no salga tan rápida
     #Gestión de eventos
     for evento in pg.event.get():
         if evento.type == pg.QUIT:
             game_over = True
         
     #Gestión de la pantalla
-    pantalla.fill(NEGRO)                            #pinta la pantalla para que la bola se mueva
-    pg.draw.circle(pantalla, ROJO, (x, y), 10)      #esto establece las propiedades de la bola
+    pantalla.fill(NEGRO)
+    for bola in bolas:                             
+        pg.draw.circle(pantalla, bola.color, (bola.x, bola.y), 10)
     
     
-    #Modificación de la pantalla para que rebote la pelota
-    x += vx
-    y += vy
+    #Modificación de la pantalla para que rebote la pelota / Modificación de Estado
+    for bola in bolas:
 
-    if y <= 0 or y >= ALTO:                                   #ponemos <= o >= 0 porque si usamos un número impar, se va
-    #En vez de menos, quiero un más, para que rebote la bola
-        vy = -vy
-    
-    if x <= 0 or x>= ANCHO:                         #EN LAS LINEAS 42 a 50, hemos puesto lo mismo, pero de otra manera (usando or)
-        vx = -vx
+        bola.x += bola.vx
+        bola.y += bola.vy
+
+        bola.vy *= rebotaY(bola.y)
+        bola.vx *= rebotaX(bola.x)
+
 
     pg.display.flip() #¡Muestralo!
 
