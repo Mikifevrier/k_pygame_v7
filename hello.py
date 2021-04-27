@@ -1,7 +1,7 @@
 import pygame as pg
 import sys
 
-def fin_juego():
+def fin_juego(): #hacer una función que cierre el juego al darle al click
     pg.quit()
     sys.exit()
 
@@ -22,10 +22,10 @@ while not game_over:
     print("Hola mundo")
     
     
-    
     # Refrescar pantalla
     pantalla.fill((0, 255, 0)) #colorea la pantalla
 
     pg.display.flip() #pasa a la memoria gráfica
+
 
 fin_juego()
