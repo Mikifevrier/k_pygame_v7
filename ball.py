@@ -22,7 +22,7 @@ pantalla = pg.display.set_mode((ANCHO, ALTO))
 reloj = pg.time.Clock()                             #creo la variable reloj para establecer la tasa de fps
 
 class Bola():
-    def __init__(self, x, y, vx, vy, color, radio=5):
+    def __init__(self, x, y, vx, vy, color, radio=10):
         self.x = x
         self.y = y
         self.vx = vx
@@ -42,6 +42,8 @@ class Bola():
     
     def dibujar(self, lienzo):
         pg.draw.circle(lienzo, self.color, (self.x, self.y), self.radio) #pg.draw.circle necesita los parámetros surface, color, center y radius)
+
+
 
 bolas = []
 
