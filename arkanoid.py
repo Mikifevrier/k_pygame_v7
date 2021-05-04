@@ -12,6 +12,7 @@ ROJO = (255, 0, 0)
 AZUL = (0, 0, 255)
 VERDE = (0, 255, 0)
 NEGRO = (0, 0, 0)
+BLANCO = (255, 255, 255)
 ANCHO = 800
 ALTO = 600
 
@@ -92,6 +93,8 @@ bola = Bola(randint(0, ANCHO),
 
 raqueta = Raqueta()
 
+fuente = pg.font.SysFont("Arial", 35)
+
 game_over = False                                       
 while not game_over and vidas > 0:
     reloj.tick(60)                               
@@ -110,8 +113,19 @@ while not game_over and vidas > 0:
     pierdebola = bola.actualizar()
     if pierdebola:
         vidas -= 1
-    raqueta.actualizar()
+        if vidas == 0:
+            texto = fuente.render("GAME OVER", True, BLANCO)
+            pantalla.fill(NEGRO)
+            pantalla.blit(texto, (300, 300))
+        else:
+            pg.time.delay(500)
+    else:        
+        raqueta.actualizar()
 
     pg.display.flip() #¡Muestralo!
+
+
+pg.display.flip()
+pg.time.delay(1000)
 
 fin_juego()
