@@ -36,17 +36,11 @@ class Bola():
     def dibujar(self, lienzo):
         pg.draw.circle(lienzo, self.color, (self.x, self.y), self.anchura//2)
     def comprueba_colision(self, objeto):
-        '''
-        if self.x >= objeto.x and self.x <= objeto.x+objeto.anchura or \
-           self.x+self.anchura >= objeto.x and self.x+self.anchura <= objeto.x + objeto.anchura:
-            choqueX = True
-        else:
-            choqueX = False
-        '''
+
         choqueX = self.x >= objeto.x and self.x <= objeto.x+objeto.anchura or \
-           self.x+self.anchura >= objeto.x and self.x+self.anchura <= objeto.x + objeto.anchura
+        self.x+self.anchura >= objeto.x and self.x+self.anchura <= objeto.x + objeto.anchura
         choqueY = self.y >= objeto.y and self.y <= objeto.y+objeto.altura or \
-           self.y+self.altura >= objeto.y and self.y+self.altura <= objeto.y + objeto.altura
+        self.y+self.altura >= objeto.y and self.y+self.altura <= objeto.y + objeto.altura
         if choqueX and choqueY:
             self.vy *= -1
             return True
