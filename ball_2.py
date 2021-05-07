@@ -58,6 +58,36 @@ class MarcadorH(pg.sprite.Sprite):
 class CuentaVidas(MarcadorH):
     plantilla = "Vidas: {}"
 
+class Ladrillo(pg.sprite.Sprite):
+    disfraces = ["greenTile.png", "redTile.png", "redTileBreak.png"]
+
+    def __init__(self, x, y, esDuro = False):
+        super().__init__()
+        self.listaImagenes = self.cargaImagenes()
+        self.esDuro = esDuro
+        self.imagen_actual = 1 if self.esDuro else 0
+        self.image = self.listaImagenes[self.imagen_actual]
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.numGolpes = 0
+
+    def cargaImagenes(self):
+        listaImagenes = []
+        for fichero in self.disfraces:
+            listaImagenes.append(pg.image.load("./images/{}".format(fichero)))
+        return listaImagenes    
+
+    def update(self, dt):
+        if self.esDuro and self.numGolpes == 1:
+            self.imagen_actual = 2
+            self.image = self.listaImagenes[self.imagen_actual] #recuerda que el draw va a mostrar solo self.image***
+
+    def desaparece(self):
+        self.numGolpes += 1
+        if self.numGolpes > 0 and not self.esDuro or self.numGolpes > 1 and self.esDuro:
+            return True
+        else:
+            return False
+
 class Raqueta(pg.sprite.Sprite):
     disfraces = ['electric00.png', 'electric01.png', 'electric02.png']
 
@@ -130,6 +160,7 @@ class Bola(pg.sprite.Sprite):
         candidatos = pg.sprite.spritecollide(self, grupo, False)
         if len(candidatos) > 0:
             self.vy *= -1
+        return candidatos
 
     def update(self, dt):
         #update de estado viva
@@ -167,13 +198,22 @@ class Game():
     def __init__(self):
         self.pantalla = pg.display.set_mode((ANCHO, ALTO))
         self.vidas = 3
+        self.puntuacion = 0
         self.todoGrupo = pg.sprite.Group()
         self.grupoJugador = pg.sprite.Group()
         self.grupoLadrillos = pg.sprite.Group()
 
-        self.cuentaSegundos = Marcador(10,10, fontsize = 100, color = (0, 0, 255))
+        for fila in range(4):
+            for columna in range(8):
+                x = columna * 100 + 5
+                y = fila * 40 + 5
+                esDuro = random.randint(1, 10) == 1
+                ladrillo = Ladrillo(x, y, esDuro)
+                self.grupoLadrillos.add(ladrillo)
+                
+
+        self.cuentaPuntos = MarcadorH(10,10, fontsize = 50, color = (0, 0, 255))
         self.cuentaVidas = CuentaVidas(790, 10, "topright", 50)
-        self.todoGrupo.add(self.cuentaSegundos, self.cuentaVidas)
         self.fondo = pg.image.load("./images/background.png")
     
 
@@ -184,27 +224,29 @@ class Game():
         self.grupoJugador.add(self.raqueta)
 
         self.todoGrupo.add(self.grupoJugador, self.grupoLadrillos)
+        self.todoGrupo.add(self.cuentaPuntos, self.cuentaVidas)
 
     def bucle_principal(self):
         game_over = False
         reloj = pg.time.Clock()
-        contador_milisegundos = 0
-        segundero = 0
+
         while not game_over and self.vidas > 0: 
             dt = reloj.tick(FPS)
-            contador_milisegundos += dt
-            
-            if contador_milisegundos >= 1000:
-                segundero += 1
-                contador_milisegundos = 0
-            
+
             for evento in pg.event.get():
                 if evento.type == pg.QUIT:
                     game_over = True
             
-            self.cuentaSegundos.text = segundero
+            self.cuentaPuntos.text = self.puntuacion
             self.cuentaVidas.text = self.vidas
             self.bola.prueba_colision(self.grupoJugador)
+            tocados = self.bola.prueba_colision(self.grupoLadrillos)
+            for ladrillo in tocados:
+                self.puntuacion += 5
+                if ladrillo.desaparece():
+                    self.grupoLadrillos.remove(ladrillo)
+                    self.todoGrupo.remove(ladrillo)
+
             self.todoGrupo.update(dt)
             if self.bola.estado == Bola.Estado.muerta:
                 self.vidas -= 1
